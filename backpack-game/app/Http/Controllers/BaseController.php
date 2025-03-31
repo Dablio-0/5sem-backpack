@@ -34,7 +34,7 @@ class BaseController extends GenericController
     public function generateProblem($itens){
 
     }
-
+}
 //         import random
 // import numpy as np
 
@@ -181,17 +181,3 @@ class BaseController extends GenericController
 //         v += s[i] * p[i]
 //     print(v)
 //     return v
-
-
-
-
-
-    
-
-    
-    
-
-
-
-    }
-}
