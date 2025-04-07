@@ -1,8 +1,8 @@
 @extends('layout')
 
 @section('content')
-    <h1>Metódos Genéricos</h1>
-    <p>Configuração Fixa !</p>
+    <h1>Metódos Básicos</h1>
+    <p>Configuração Fixa!</p>
 
     <div class="row">
         <div class="col s12">
@@ -13,8 +13,8 @@
                         @csrf
                         <div class="row">
                             <div class="input-field col s12 l3 xl2">
-                                <input type="text" name="capacity" id="capacity" value="{{ $capacity ?? '' }}" />
-                                <label for="capacity">Capacidade da Mochila</label>
+                                <input type="text" name="max_capacity" id="max_capacity" value="{{ $max_capacity ?? '' }}" />
+                                <label for="max_capacity">Capacidade da Mochila</label>
                             </div>
                             <div class="input-field col s12 l3 xl2">
                                 <input type="text" name="item_count" id="item_count" value="{{ $item_count ?? '' }}" />
@@ -23,7 +23,7 @@
                         </div>
                         <div>
                             <input type="submit" value="Gerar Problema" class="btn waves-effect waves-light" />
-                        </div>
+                        </div>  
                     </form>
                 </div>
             </div>

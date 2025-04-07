@@ -11,30 +11,75 @@ class BaseController extends GenericController
         return view('base.index', compact($this->getData()));
     }
 
-    public function generate(Request $request){
-
+    public function generate(Request $request)
+    {
         $request->validate([
             'max_capacity' => 'required|numeric',
-            'itens' => 'required|array',
-            'itens.*.value' => 'required|numeric',
+            'items' => 'required|array',
+            'items.*.value' => 'required|numeric',
         ]);
 
         $max_capacity = $request->max_capacity;
-        $itens = $request->itens;
+        $items = array_map(fn($item) => $item['value'], $request->items);
 
-        $generatedProblem = $this->generateBackpack($max_capacity);
-        $initialSolution = $this->generateInitialSolution($max_capacity, $itens);
+        $generatedProblem = $this->generateProblem(count($items));
+        $initialSolution = $this->generateInitialSolution($max_capacity, $items);
+        $evaluation = $this->evaluateSolution($initialSolution, $items);
 
-        return [
+        return response()->json([
             'generated_problem' => $generatedProblem,
             'initial_solution' => $initialSolution,
-        ];
+            'evaluation' => $evaluation,
+        ]);
     }
 
-    public function generateProblem($itens){
+    private function generateProblem($itemCount)
+    {
+        $problem = [];
+        for ($i = 0; $i < $itemCount; $i++) {
+            $problem[] = mt_rand(1, 100) / 100; // Gera valores aleatórios entre 0 e 1
+        }
+        return $problem;
+    }
 
+    private function generateInitialSolution($max_capacity, $items)
+    {
+        $solution = array_fill(0, count($items), 0);
+        $currentWeight = 0;
+        
+        $prioritizedItems = array_keys(array_filter($items, fn($w) => $w >= 1));
+        foreach ($prioritizedItems as $index) {
+            if ($currentWeight + $items[$index] <= $max_capacity) {
+                $solution[$index] = 1;
+                $currentWeight += $items[$index];
+            }
+        }
+        
+        $remainingItems = array_keys(array_filter($items, fn($w) => $w < 1));
+        shuffle($remainingItems);
+        
+        foreach ($remainingItems as $index) {
+            if ($currentWeight + $items[$index] <= $max_capacity) {
+                $solution[$index] = 1;
+                $currentWeight += $items[$index];
+            }
+        }
+        
+        return $solution;
+    }
+
+    private function evaluateSolution($solution, $items)
+    {
+        $totalValue = 0;
+        foreach ($solution as $index => $included) {
+            if ($included) {
+                $totalValue += $items[$index];
+            }
+        }
+        return $totalValue;
     }
 }
+
 //         import random
 // import numpy as np
 
