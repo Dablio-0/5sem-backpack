@@ -32,11 +32,40 @@
             <div class="card">
                 <div class="card-content center-align">
                     <p class="flow-text">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                        Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                        <ul>
+                            <li>
+                                <strong>Problema da Mochila</strong>: 
+                                Problema clássico de otimização, onde o objetivo é maximizar o valor dos itens em uma mochila com capacidade limitada.
+                                <ul>
+                                    <li>Capacidade da Mochila: Limite máximo de peso que a mochila pode carregar.</li>
+                                    <li>Quantidade de Itens: Número total de itens disponíveis para serem colocados na mochila.</li>
+                                    <li>Valor dos Itens: Valor associado a cada item, que contribui para o valor total da mochila.</li>
+                                    <li>Peso dos Itens: Peso associado a cada item, que deve respeitar a capacidade da mochila.</li>
+                                    <li>Objetivo: Selecionar os itens que maximizam o valor total sem exceder a capacidade da mochila.</li>
+                                    <li>Restrições: Itens podem ter restrições de peso, valor ou dependência, que devem ser consideradas na seleção.</li>
+                                    <li>Aplicações: O problema da mochila é amplamente utilizado em áreas como logística, finanças e planejamento de recursos.</li>
+                                    <li>Exemplo: Se a mochila tem capacidade de 50 kg e os itens têm pesos e valores variados, o objetivo é escolher os itens que maximizam o valor total sem ultrapassar os 50 kg.</li>
+                                </ul>
+                            </li>
+                            <li>
+                                <strong>Desenvolvido por:</strong>
+                                <ul>
+                                    <li>Nome: Wellington de Elias Rodrigues</li>
+                                </ul>
+                                <ul>
+                                    <li>Nome: Willians Henrique Santos Silva</li>
+                                </ul>
+                            </li>
+                            <li>
+                                <strong>Instituição e Professor Orientador:</strong>
+                                <ul>
+                                    <li>Instituição: FATEC - Faculdade de Tecnologia de São Paulo</li>
+                                    <li>Curso: Análise e Desenvolvimento de Sistemas</li>
+                                    <li>Professor Orientador: Prof. Dr. Luis Fernando de Almeirda</li>
+                                    <li>Data: 1/2025</li>
+                                </ul>
+                            </li>
+                        </ul>
                     </p>
                 </div>
             </div>
