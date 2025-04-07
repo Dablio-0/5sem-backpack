@@ -7,9 +7,16 @@ use Illuminate\Http\Request;
 class BaseController extends GenericController
 {
     public function index()
-    {
-        return view('base.index', compact($this->getData()));
-    }
+{
+    return view('base.index', [
+        'max_capacity' => null,
+        'item_count' => null,
+        'generated_problem' => [],
+        'initial_solution' => [],
+        'evaluation' => null,
+    ]);
+}
+
 
     public function generate(Request $request)
     {
@@ -78,6 +85,32 @@ class BaseController extends GenericController
         }
         return $totalValue;
     }
+    public function solve(Request $request)
+{
+    $request->validate([
+        'max_capacity' => 'required|numeric',
+        'item_count' => 'required|numeric',
+    ]);
+
+    $max_capacity = $request->input('max_capacity');
+    $item_count = $request->input('item_count');
+
+    $items = array_map(fn() => mt_rand(1, 100) / 10, range(1, $item_count));
+    
+    $generatedProblem = $this->generateProblem($item_count);
+    $initialSolution = $this->generateInitialSolution($max_capacity, $items);
+    $evaluation = $this->evaluateSolution($initialSolution, $items);
+
+    return view('base.index', [
+        'max_capacity' => $max_capacity,
+        'item_count' => $item_count,
+        'generated_problem' => $generatedProblem,
+        'initial_solution' => $initialSolution,
+        'evaluation' => $evaluation,
+        'items' => $items,
+    ]);
+}
+
 }
 
 //         import random

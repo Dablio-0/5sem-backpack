@@ -32,7 +32,31 @@
             <div class="card">
                 <div class="card-content">
                     <span class="card-title">Visualização dos Dados</span>
-                    array de dados
+                    @if(isset($generated_problem))
+                        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 200px;">
+                                <p><strong>Problema Gerado:</strong></p>
+                                <pre>{{ json_encode($generated_problem, JSON_PRETTY_PRINT) }}</pre>
+                            </div>
+
+                            @if(isset($items))
+                                <div style="flex: 1; min-width: 200px;">
+                                    <p><strong>Itens:</strong></p>
+                                    <pre>{{ json_encode($items, JSON_PRETTY_PRINT) }}</pre>
+                                </div>
+                            @endif
+
+                            <div style="flex: 1; min-width: 200px;">
+                                <p><strong>Solução Inicial:</strong></p>
+                                <pre>{{ json_encode($initial_solution, JSON_PRETTY_PRINT) }}</pre>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 16px;">
+                            <p><strong>Avaliação:</strong> {{ $evaluation }}</p>
+                        </div>
+                    @endif
+
                 </div>
             </div>
         </div>

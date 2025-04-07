@@ -25,7 +25,8 @@ Route::prefix('home')->name('home.')->group(function(){
     Route::get('/', [HomeController::class, 'index'])->name('index');
 
     Route::get('base', [BaseController::class, 'index'])->name('base.index');
-    
+    Route::post('base', [BaseController::class, 'solve'])->name('base.solve');
     Route::get('genetic', [GeneticController::class, 'index'])->name('genetic.index');
+
 
 });
