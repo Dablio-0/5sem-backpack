@@ -11,5 +11,9 @@ Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
+worker.log
+/storage/query.log
+.vscode
+phpnm-lock.yaml
 /.idea
 /.vscode

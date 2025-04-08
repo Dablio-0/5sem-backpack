@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\BaseController;
+use App\Http\Controllers\GeneticController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,4 +18,17 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::prefix('home')->name('home.')->group(function(){
+
+    Route::get('/', [HomeController::class, 'index'])->name('index');
+
+    Route::get('base', [BaseController::class, 'index'])->name('base.index');
+    Route::post('base', [BaseController::class, 'solve'])->name('base.solve');
+    Route::get('genetic', [GeneticController::class, 'index'])->name('genetic.index');
+    
+
+
+
 });
