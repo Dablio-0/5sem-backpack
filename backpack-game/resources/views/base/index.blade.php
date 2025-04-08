@@ -22,7 +22,7 @@
                             </div>
                         </div>
                         <div>
-                            <input type="submit" value="Gerar Problema" class="btn waves-effect waves-light" />
+                            <input type="submit" value="Gerar Problema" class="btn orange darken-2" />
                         </div>  
                     </form>
                 </div>
