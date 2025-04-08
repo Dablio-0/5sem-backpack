@@ -6,6 +6,7 @@
 .env
 .env.backup
 .phpunit.result.cache
+docker-compose.override.yml
 Homestead.json
 Homestead.yaml
 npm-debug.log
@@ -14,3 +15,5 @@ worker.log
 /storage/query.log
 .vscode
 phpnm-lock.yaml
+/.idea
+/.vscode
