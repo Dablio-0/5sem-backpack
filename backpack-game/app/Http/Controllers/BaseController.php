@@ -14,29 +14,14 @@ class BaseController extends GenericController
             'generated_problem' => [],
             'initial_solution' => [],
             'evaluation' => null,
-        ]);
-    }
+            // 'successors_count' => 0,
+            // 'successors' => [],
+            // 'attemps' => 0,
+            // 'initial_temperature' => null,
+            // 'final_temperature' => null,
+            // 'reducing_factor' => null,
+            // 't_max' => null,
 
-
-    public function generate(Request $request)
-    {
-        $request->validate([
-            'max_capacity' => 'required|numeric',
-            'items' => 'required|array',
-            'items.*.value' => 'required|numeric',
-        ]);
-
-        $max_capacity = $request->max_capacity;
-        $items = array_map(fn($item) => $item['value'], $request->items);
-
-        $generatedProblem = $this->generateProblem(count($items));
-        $initialSolution = $this->generateInitialSolution($max_capacity, $items);
-        $evaluation = $this->evaluateSolution($initialSolution, $items);
-
-        return response()->json([
-            'generated_problem' => $generatedProblem,
-            'initial_solution' => $initialSolution,
-            'evaluation' => $evaluation,
         ]);
     }
 
