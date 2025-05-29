@@ -5,7 +5,7 @@
     <div class="row">
         <div class="col s12">
             <div class="card">
-                <form method="POST">
+                <form method="POST" action="{{ route('base.solve') }}">
                     @csrf
                     <div class="card-content center-align">
                         <span class="card-title">Problema da Mochila</span>
@@ -65,7 +65,7 @@
     <div class="row">
         <div class="col s12">
             <div class="card">
-                <form method="POST">
+                <form method="POST" action="{{ route('base.improve') }}>
                     @csrf
                     <div class="card-content center-align">
                         <span class="card-title">Configuração do Problema</span>

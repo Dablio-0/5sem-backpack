@@ -97,6 +97,49 @@ class BaseController extends GenericController
         ]);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /*********************************************** Soluções Iniciais e Avaliações *******************************************************/
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public function improve(Request $request)
+    {
+        $request->validate([
+
+            if ($request->has('metodo_melhoria')) {
+
+                if ($request->input('metodo_melhoria') == '1') {
+                    // Implementar lógica de busca local
+                } elseif ($request->input('metodo_melhoria') == '2') {
+                    // Implementar lógica de recozimento simulado
+                } elseif ($request->input('metodo_melhoria') == '3') {
+                }
+            }
+            
+            else {
+                return redirect()->back()->withErrors(['metodo_melhoria' => 'Método de melhoria não selecionado.']);
+            }
+        ]);
+
+        $max_capacity = $request->input('max_capacity');
+        $item_count = $request->input('item_count');
+        $items = $request->input('items');
+        $initialSolution = $request->input('initial_solution');
+
+        // Aqui você pode implementar a lógica de melhoria da solução inicial
+        // Por exemplo, aplicar um algoritmo de busca local ou outro método de otimização
+
+        // Para fins de exemplo, vamos apenas recalcular a avaliação da solução inicial
+        $evaluation = $this->evaluateSolution($initialSolution, $items);
+
+        return view('base.index', [
+            'max_capacity' => $max_capacity,
+            'item_count' => $item_count,
+            'generated_problem' => [],
+            'initial_solution' => $initialSolution,
+            'evaluation' => $evaluation,
+            'items' => $items,
+        ]);
+    }
 }
 
 //         import random
