@@ -173,14 +173,13 @@ class BaseController extends GenericController
      * @return array Retorna um array contendo a melhor solução encontrada e sua avaliação.
      */
     public function successors(
-                                array $initialSolution, 
-                                float $evaluation, 
-                                array $items, 
-                                int $max_capacity,  
-                                int $item_count, 
-                                int $successors_num
-                            )
-    {
+        array $initialSolution,
+        float $evaluation,
+        array $items,
+        int $max_capacity,
+        int $item_count,
+        int $successors_num
+    ) {
         // Inicializando valores
         $better = $initialSolution;
         $betterEvaluation = $evaluation;
@@ -241,18 +240,18 @@ class BaseController extends GenericController
      * @param array $items Um array contendo os valores dos itens.
      * @param int $max_capacity A capacidade máxima da mochila.
      * @param int $item_count O número total de itens.
+     * @param int $successors_num O número de sucessores a serem gerados.
      * 
      * @return array Retorna a melhor solução encontrada e sua avaliação.
      */
     public function hillClimbing(
-                                array $initialSolution, 
-                                float $evaluation, 
-                                array $items, 
-                                int $max_capacity, 
-                                int $item_count, 
-                                ?int $successors_num = null
-                            )
-    {
+        array $initialSolution,
+        float $evaluation,
+        array $items,
+        int $max_capacity,
+        int $item_count,
+        ?int $successors_num = null
+    ) {
         // Inicializando valores
         $current = $initialSolution;
         $currentEvaluation = $evaluation;
@@ -295,15 +294,14 @@ class BaseController extends GenericController
      * @return array Retorna a melhor solução encontrada e sua avaliação.
      */
     public function changedHillClimbing(
-                                        array $initialSolution, 
-                                        float $evaluation, 
-                                        array $items, 
-                                        int $max_capacity, 
-                                        int $item_count, 
-                                        int $max_attemps, 
-                                        ?int $successors_num = null
-                                    )
-    {
+        array $initialSolution,
+        float $evaluation,
+        array $items,
+        int $max_capacity,
+        int $item_count,
+        int $max_attemps,
+        ?int $successors_num = null
+    ) {
         // Inicializando valores
         $current = $initialSolution;
         $currentEvaluation = $evaluation;
@@ -354,28 +352,52 @@ class BaseController extends GenericController
      * 
      * @return array Retorna a melhor solução encontrada e sua avaliação.
      */
-    public function simulatedAnnealing( 
-                                        array $initialSolution, 
-                                        float $evaluation, 
-                                        array $items, 
-                                        int $max_capacity, 
-                                        int $item_count, 
-                                        ?int $successors_num = null, 
-                                        float $initial_temp, 
-                                        float $final_temp, 
-                                        float $reducing_factor
-                                    )
-    {
+    public function simulatedAnnealing(
+        array $initialSolution,
+        float $evaluation,
+        array $items,
+        int $max_capacity,
+        int $item_count,
+        ?int $successors_num = null,
+        float $initial_temp,
+        float $final_temp,
+        float $reducing_factor
+    ) {
         // Inicializando valores
         $current = $initialSolution;
         $currentEvaluation = $evaluation;
         $successors_num = $successors_num ?? $item_count;
+        $max_temp = $initial_temp;
+        $min_temp = $final_temp;
+        $ft_red = $reducing_factor;
 
-        // Implementar a lógica de têmpera simulada aqui
-        // Esta função deve retornar a melhor solução encontrada e sua avaliação
+        while ($max_temp >= $min_temp) {
+
+            $successors = $this->successors($current, $currentEvaluation, $items, $max_capacity, $item_count, $successors_num);
+            $newSolution = $successors['final_solution'];
+            $newEvaluation = $successors['final_evaluation'];
+
+            $deltaE = $newEvaluation - $currentEvaluation;
+
+            if ($deltaE < 0) {
+                $current = $newSolution;
+                $currentEvaluation = $newEvaluation;
+            } else {
+                $numRandom = mt_rand(0, $item_count - 1);
+                $aux = exp(-$deltaE / $max_temp);
+
+                if ($numRandom <= $aux) {
+                    $current = $newSolution;
+                    $currentEvaluation = $newEvaluation;
+                }
+            }
+
+            $max_temp = $max_temp * $ft_red;
+        }
+
         return [
-            'final_solution' => $initialSolution,
-            'final_evaluation' => $evaluation,
+            'final_solution' => $current,
+            'final_evaluation' => $currentEvaluation,
         ];
     }
 
@@ -454,13 +476,13 @@ class BaseController extends GenericController
 
                 // chama a funcao de subida de encosta
                 $results['hillClimbing_results'] = $this->hillClimbing(
-                                                                    $initialSolution, 
-                                                                    $evaluation, 
-                                                                    $items,
-                                                                    $max_capacity, 
-                                                                    $item_count
-                                                                );
-                break;  
+                    $initialSolution,
+                    $evaluation,
+                    $items,
+                    $max_capacity,
+                    $item_count
+                );
+                break;
 
             case 2:
 
@@ -468,14 +490,15 @@ class BaseController extends GenericController
                 $successors_num = $request->input('successors_num');
                 $max_attemps = $request->input('max_attemps');
 
-                $results['changedHillClimbing_results'] = $this->changedHillClimbing( $initialSolution,
-                                            $evaluation,
-                                            $items, 
-                                            $max_capacity, 
-                                            $item_count, 
-                                            $successors_num, 
-                                            $max_attemps
-                                        );
+                $results['changedHillClimbing_results'] = $this->changedHillClimbing(
+                    $initialSolution,
+                    $evaluation,
+                    $items,
+                    $max_capacity,
+                    $item_count,
+                    $successors_num,
+                    $max_attemps
+                );
                 break;
 
             case 3:
@@ -486,172 +509,179 @@ class BaseController extends GenericController
                 $final_temp = $request->input('final_temp');
                 $reducing_factor = $request->input('reducing_factor');
 
-                $results['simulatedAnnealing_results'] = $this->simulatedAnnealing( $initialSolution,
-                                            $evaluation,
-                                            $items, 
-                                            $max_capacity, 
-                                            $item_count, 
-                                            $successors_num,
-                                            $initial_temp,
-                                            $final_temp,
-                                            $reducing_factor
-                                        );
+                $results['simulatedAnnealing_results'] = $this->simulatedAnnealing(
+                    $initialSolution,
+                    $evaluation,
+                    $items,
+                    $max_capacity,
+                    $item_count,
+                    $successors_num,
+                    $initial_temp,
+                    $final_temp,
+                    $reducing_factor
+                );
                 break;
-            
+
             case 4:
 
                 // Execuçõo de todos os anteriores
-                $results['hillClimbing_results'] = $this->hillClimbing($initialSolution, 
-                                    $evaluation, 
-                                    $items,
-                                    $max_capacity, 
-                                    $item_count
-                                );
+                $results['hillClimbing_results'] = $this->hillClimbing(
+                    $initialSolution,
+                    $evaluation,
+                    $items,
+                    $max_capacity,
+                    $item_count
+                );
 
-                $results['changedHillClimbing_results'] = $this->changedHillClimbing( $initialSolution,
-                                            $evaluation,
-                                            $items, 
-                                            $max_capacity, 
-                                            $item_count, 
-                                            $request->input('successors_num'),
-                                            $request->input('max_attemps')
-                                        );
+                $results['changedHillClimbing_results'] = $this->changedHillClimbing(
+                    $initialSolution,
+                    $evaluation,
+                    $items,
+                    $max_capacity,
+                    $item_count,
+                    $request->input('successors_num'),
+                    $request->input('max_attemps')
+                );
 
-                $results['simulatedAnnealing_results'] = $this->simulatedAnnealing( $initialSolution,
-                                            $evaluation,
-                                            $items, 
-                                            $max_capacity, 
-                                            $item_count, 
-                                            $request->input('successors_num'),
-                                            $request->input('initial_temp'),
-                                            $request->input('final_temp'),
-                                            $request->input('reducing_factor')
-                                        );
+                $results['simulatedAnnealing_results'] = $this->simulatedAnnealing(
+                    $initialSolution,
+                    $evaluation,
+                    $items,
+                    $max_capacity,
+                    $item_count,
+                    $request->input('successors_num'),
+                    $request->input('initial_temp'),
+                    $request->input('final_temp'),
+                    $request->input('reducing_factor')
+                );
 
             default:
                 return back()->withErrors(['improvement_method' => 'Método inválido']);
         }
 
-        return $this->dataResults(
-                                    $max_capacity, 
-                                    $item_count, 
-                                    $generatedProblem, 
-                                    $primarySolution, 
-                                    $primaryEvaluation, 
-                                    $items, 
-                                    $method, 
-                                    $successors_num, 
-                                    $max_attemps, 
-                                    $initial_temp, 
-                                    $final_temp, 
-                                    $reducing_factor, 
-                                    $results
-                                );
-        }
-
-        public function exportImprovementResults(
-                                    $max_capacity, 
-                                    $item_count, 
-                                    $generatedProblem, 
-                                    $primarySolution, 
-                                    $primaryEvaluation, 
-                                    $items, 
-                                    $method, 
-                                    $successors_num = null, 
-                                    $max_attemps = null, 
-                                    $initial_temp = null, 
-                                    $final_temp = null, 
-                                    $reducing_factor = null, 
-                                    array $results = []
-                                )
-        {
-            
-            $data = $this->dataResults(
-                $max_capacity, 
-                $item_count, 
-                $generatedProblem, 
-                $primarySolution, 
-                $primaryEvaluation, 
-                $items, 
-                $method, 
-                $successors_num, 
-                $max_attemps, 
-                $initial_temp, 
-                $final_temp, 
-                $reducing_factor, 
+        $data = collect([
+            $this->dataResults(
+                $max_capacity,
+                $item_count,
+                $generatedProblem,
+                $primarySolution,
+                $primaryEvaluation,
+                $items,
+                $method,
+                $successors_num,
+                $max_attemps,
+                $initial_temp,
+                $final_temp,
+                $reducing_factor,
                 $results
-            );
-            
-            return Excel::download(new BackpackProblemReportExport($data), 'Relatório - Problema da Mochila - ' . date('Y-m-d_H-i-s') . '.pdf', \Maatwebsite\Excel\Excel::MPDF);
-        }
+            )
+        ]);
 
-        /**
-         * Exibe os resultados das melhorias aplicadas na solução inicial do problema da mochila.
-         * 
-         * @Dablio-0
-         * 
-         * @method dataResults
-         * 
-         * @param mixed $max_capacity
-         * @param mixed $item_count
-         * @param mixed $generatedProblem
-         * @param mixed $primarySolution
-         * @param mixed $primaryEvaluation
-         * @param mixed $items
-         * @param mixed $method
-         * @param mixed $successors_num
-         * @param mixed $max_attemps
-         * @param mixed $initial_temp
-         * @param mixed $final_temp
-         * @param mixed $reducing_factor
-         * @param array $results
-         * 
-         * @return \Illuminate\View\View|\Symfony\Component\HttpFoundation\Response
-         */
-        public function dataResults(
-                                    $max_capacity,
-                                    $item_count,
-                                    $generatedProblem,
-                                    $primarySolution,
-                                    $primaryEvaluation,
-                                    $items,
-                                    $method,
-                                    $successors_num = null,
-                                    $max_attemps = null,
-                                    $initial_temp = null,
-                                    $final_temp = null,
-                                    $reducing_factor = null,
-                                    array $results = []
-                                ) 
-        {
-            return view('base.results', [
+        return view('base.results', compact('data'));
+    }
 
-                    /* Dados do problema */
-                    'max_capacity' => $max_capacity,
-                    'item_count' => $item_count,
-                    'generated_problem' => $generatedProblem,
-                    'primary_solution' => $primarySolution,
-                    'primary_evaluation' => $primaryEvaluation,
-                    'items' => $items,
+    public function exportImprovementResults(
+        $max_capacity,
+        $item_count,
+        $generatedProblem,
+        $primarySolution,
+        $primaryEvaluation,
+        $items,
+        $method,
+        $successors_num = null,
+        $max_attemps = null,
+        $initial_temp = null,
+        $final_temp = null,
+        $reducing_factor = null,
+        array $results = []
+    ) {
 
-                    /* Dados do método de melhoria */
-                    'method' => $method,
+        $data = collect([
+            $this->dataResults(
+                $max_capacity,
+                $item_count,
+                $generatedProblem,
+                $primarySolution,
+                $primaryEvaluation,
+                $items,
+                $method,
+                $successors_num,
+                $max_attemps,
+                $initial_temp,
+                $final_temp,
+                $reducing_factor,
+                $results
+            )
+        ]);
 
-                    /* Dados Subida de Encosta e Subida de Encosta Alterada */
-                    'successors_num' => $successors_num ?? null, // presente em todos os métodos
-                    'max_attemps' => $max_attemps ?? null,
+        return Excel::download(new BackpackProblemReportExport($data), 'Relatório - Problema da Mochila - ' . date('Y-m-d_H-i-s') . '.pdf', \Maatwebsite\Excel\Excel::MPDF);
+    }
 
-                    /* Dados de Têmpera Simulada */
-                    'initial_temp' => $initial_temp ?? null,
-                    'final_temp' => $final_temp ?? null,
-                    'reducing_factor' => $reducing_factor ?? null,
+    /**
+     * Exibe os resultados das melhorias aplicadas na solução inicial do problema da mochila.
+     * 
+     * @Dablio-0
+     * 
+     * @method dataResults
+     * 
+     * @param mixed $max_capacity
+     * @param mixed $item_count
+     * @param mixed $generatedProblem
+     * @param mixed $primarySolution
+     * @param mixed $primaryEvaluation
+     * @param mixed $items
+     * @param mixed $method
+     * @param mixed $successors_num
+     * @param mixed $max_attemps
+     * @param mixed $initial_temp
+     * @param mixed $final_temp
+     * @param mixed $reducing_factor
+     * @param array $results
+     * 
+     * @return \Illuminate\View\View|\Symfony\Component\HttpFoundation\Response
+     */
+    public function dataResults(
+        $max_capacity,
+        $item_count,
+        $generatedProblem,
+        $primarySolution,
+        $primaryEvaluation,
+        $items,
+        $method,
+        $successors_num = null,
+        $max_attemps = null,
+        $initial_temp = null,
+        $final_temp = null,
+        $reducing_factor = null,
+        array $results = []
+    ) {
+        return [
+            /* Dados do problema */
+            'max_capacity' => $max_capacity,
+            'item_count' => $item_count,
+            'generated_problem' => $generatedProblem,
+            'primary_solution' => $primarySolution,
+            'primary_evaluation' => $primaryEvaluation,
+            'items' => $items,
 
-                    /* Resultados das melhorias */
-                    'results' => [
-                        'hillClimbing' => $results['hillClimbing_results'] ?? null,
-                        'changedHillClimbing' => $results['changedHillClimbing_results'] ?? null,
-                        'simulatedAnnealing' => $results['simulatedAnnealing_results'] ?? null,
-                    ],
-                ]);
-        }
+            /* Dados do método de melhoria */
+            'method' => $method,
+
+            /* Dados Subida de Encosta e Subida de Encosta Alterada */
+            'successors_num' => $successors_num ?? null, // presente em todos os métodos
+            'max_attemps' => $max_attemps ?? null,
+
+            /* Dados de Têmpera Simulada */
+            'initial_temp' => $initial_temp ?? null,
+            'final_temp' => $final_temp ?? null,
+            'reducing_factor' => $reducing_factor ?? null,
+
+            /* Resultados das melhorias */
+            'results' => [
+                'hillClimbing' => $results['hillClimbing_results'] ?? null,
+                'changedHillClimbing' => $results['changedHillClimbing_results'] ?? null,
+                'simulatedAnnealing' => $results['simulatedAnnealing_results'] ?? null,
+            ],
+        ];
+    }
 }
