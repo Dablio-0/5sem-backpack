@@ -22,6 +22,7 @@
                         <div class="card-action">
                             <div class="center-align">
                                 <input type="submit" value="Executar" class="btn orange darken-2 " />
+                                <input type="reset" value="Limpar" class="btn orange darken-2 " />
                             </div> 
                         </div> 
                     </div>
@@ -82,7 +83,7 @@
                         <div class="row">
                             <div class="input-field col s12 l4 offset-l4 offset-m3 center-align">
                                 <select name="improvement_method" id="improvement_method" class="browser-default" @error('improvement_method') style="border: 1px solid red;"> @enderror
-                                    <option value="" selected>Selecione um Método</option>
+                                    <option value="" selected>Selecione uma opção</option>
                                     <option value="1">Subida de Encosta</option>
                                     <option value="2">Subida de Encosta Alterada</option>
                                     <option value="3">Têmpera Simulada</option>
@@ -96,7 +97,7 @@
                         </div>
                         <div class="card-action">
                             <div class="center-align">
-                                <input type="submit" value="Aplicar Método" class="btn orange darken-2 " />
+                                <input type="submit" value="Aplicar Método(s)" class="btn orange darken-2 " />
                             </div>  
                         </div>
                     </div>
@@ -122,56 +123,111 @@
             console.log('Método selecionado:', selectedValue);
             const configDiv = document.getElementById('dynamic-fields');
             if (selectedValue == 1) {
-            configDiv.innerHTML = `
-                <div class="divider"></div>
-                <div class="row">
-                    <div class="input-field col s12 l4 offset-l4 offset-m3">
-                        <input type="text" name="successors_num" id="successors_num" value="{{ $successors_num ?? '' }}" @error('successors_num') is-invalid @enderror/>
-                        <label for="successors_num">Máximo de Iterações (Sucessores)</label>
+                configDiv.innerHTML = `
+                    <br>
+                    <div class="divider"></div>
+                    <div class="row">
+                        <div class="input-field col s12 l4 offset-l4 offset-m3">
+                            <input type="text" name="successors_num" id="successors_num" value="{{ $successors_num ?? '' }}" @error('successors_num') is-invalid @enderror/>
+                            <label for="successors_num">Máximo de Iterações (Sucessores)</label>
+                        </div>
                     </div>
-                </div>
-            `;
-            configDiv.style.display = 'block';
+                `;
+                configDiv.style.display = 'block';
             } else if (selectedValue == 2) {
-            configDiv.innerHTML = `
-                <div class="divider"></div>
-                <div class="row">
-                    <div class="input-field col s12 l6">
-                        <input type="text" name="successors_num" id="successors_num" value="{{ $successors_num ?? '' }}" @error('successors_num') is-invalid @enderror/>
-                        <label for="successors_num">Máximo de Iterações (Sucessores)</label>
+                configDiv.innerHTML = `
+                    <br>
+                    <div class="divider"></div>
+                    <div class="row">
+                        <div class="input-field col s12 l6">
+                            <input type="text" name="successors_num" id="successors_num" value="{{ $successors_num ?? '' }}" @error('successors_num') is-invalid @enderror/>
+                            <label for="successors_num">Máximo de Iterações (Sucessores)</label>
+                        </div>
+                        <div class="input-field col s12 l6">
+                            <input type="text" name="max_attemps" id="max_attemps" value="{{ $max_attemps ?? '' }}" @error('max_attemps') is-invalid @enderror />
+                            <label for="max_attemps">Máximo de Tentativas</label>
+                        </div>
                     </div>
-                    <div class="input-field col s12 l6">
-                        <input type="text" name="max_attemps" id="max_attemps" value="{{ $max_attemps ?? '' }}" @error('max_attemps') is-invalid @enderror />
-                        <label for="max_attemps">Máximo de Tentativas</label>
-                    </div>
-                </div>
-            `;
+                `;
+                configDiv.style.display = 'block';
             } else if (selectedValue == 3) {
-            configDiv.innerHTML = `
-                <div class="divider"></div>
-                <div class="row">
-                    <div class="input-field col s12 l6 offset-l3 offset-m4">
-                        <input type="text" name="successors_num" id="successors_num" value="{{ $successors_num ?? '' }}" @error('successors_num') is-invalid @enderror />
-                        <label for="successors_num">Número de Sucessores</label>
+                configDiv.innerHTML = `
+                    <br>
+                    <div class="divider"></div>
+                    <div class="row">
+                        <div class="input-field col s12 l6 offset-l3 offset-m4">
+                            <input type="text" name="successors_num" id="successors_num" value="{{ $successors_num ?? '' }}" @error('successors_num') is-invalid @enderror />
+                            <label for="successors_num">Número de Sucessores</label>
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="input-field col s12 l4">
-                        <input type="text" name="initial_temp" id="initial_temp" value="{{ $initial_temp ?? '' }}" @error('initial_temp') is-invalid @enderror />
-                        <label for="initial_temp">Temperatura Inicial</label>
+                    <div class="row">
+                        <div class="input-field col s12 l4">
+                            <input type="text" name="initial_temp" id="initial_temp" value="{{ $initial_temp ?? '' }}" @error('initial_temp') is-invalid @enderror />
+                            <label for="initial_temp">Temperatura Inicial</label>
+                        </div>
+                        <div class="input-field col s12 l4">
+                            <input type="text" name="final_temp" id="final_temp" value="{{ $final_temp ?? '' }}" @error('final_temp') is-invalid @enderror/>
+                            <label for="final_temp">Temratura Final</label>
+                        </div>
+                        <div class="input-field col s12 l4">
+                            <input type="text" name="reducing_factor" id="reducing_factor" value="{{ $reducing_factor ?? '' }}" @error('reducing_factor') is-invalid @enderror/>
+                            <label for="reducing_factor">Fator Redutor</label>
+                        </div>
                     </div>
-                    <div class="input-field col s12 l4">
-                        <input type="text" name="final_temp" id="final_temp" value="{{ $final_temp ?? '' }}" @error('final_temp') is-invalid @enderror/>
-                        <label for="final_temp">Temratura Final</label>
+                `;
+                configDiv.style.display = 'block';
+            } else if (selectedValue == 4) {
+                configDiv.innerHTML = `
+                    <br>
+                    <div class="divider"></div>
+                    <div class="row">
+                        <br>
+                        <center ><p><strong>Subida de Encosta</strong></p></center>
+                        <div class="input-field col s12 l4 offset-l4 offset-m3">
+                            <input type="text" name="successors_num" id="successors_num" value="{{ $successors_num ?? '' }}" @error('successors_num') is-invalid @enderror/>
+                            <label for="successors_num">Máximo de Iterações (Sucessores)</label>
+                        </div>
                     </div>
-                    <div class="input-field col s12 l4">
-                        <input type="text" name="reducing_factor" id="reducing_factor" value="{{ $reducing_factor ?? '' }}" @error('reducing_factor') is-invalid @enderror/>
-                        <label for="reducing_factor">Fator Redutor</label>
+                    <div class="divider"></div>
+                    <div class="row">
+                        <br>
+                        <center ><p><strong>Subida de Encosta Alterada</strong></p></center>
+                        <div class="input-field col s12 l6">
+                            <input type="text" name="successors_num" id="successors_num" value="{{ $successors_num ?? '' }}" @error('successors_num') is-invalid @enderror/>
+                            <label for="successors_num">Máximo de Iterações (Sucessores)</label>
+                        </div>
+                        <div class="input-field col s12 l6">
+                            <input type="text" name="max_attemps" id="max_attemps" value="{{ $max_attemps ?? '' }}" @error('max_attemps') is-invalid @enderror />
+                            <label for="max_attemps">Máximo de Tentativas</label>
+                        </div>
                     </div>
-                </div>
-            `;
-            } else {
-                configDiv.innerHTML = '';
+                    <div class="divider"></div>
+                    <div class="row">
+                        <br>
+                        <center ><p><strong>Têmpera Simulada</strong></p></center>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12 l6 offset-l3 offset-m4">
+                            <input type="text" name="successors_num" id="successors_num" value="{{ $successors_num ?? '' }}" @error('successors_num') is-invalid @enderror />
+                            <label for="successors_num">Número de Sucessores</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12 l4">
+                            <input type="text" name="initial_temp" id="initial_temp" value="{{ $initial_temp ?? '' }}" @error('initial_temp') is-invalid @enderror />
+                            <label for="initial_temp">Temperatura Inicial</label>
+                        </div>
+                        <div class="input-field col s12 l4">
+                            <input type="text" name="final_temp" id="final_temp" value="{{ $final_temp ?? '' }}" @error('final_temp') is-invalid @enderror/>
+                            <label for="final_temp">Temratura Final</label>
+                        </div>
+                        <div class="input-field col s12 l4">
+                            <input type="text" name="reducing_factor" id="reducing_factor" value="{{ $reducing_factor ?? '' }}" @error('reducing_factor') is-invalid @enderror/>
+                            <label for="reducing_factor">Fator Redutor</label>
+                        </div>
+                    </div>
+                `;
+                configDiv.style.display = 'block';
             }
         });
     });

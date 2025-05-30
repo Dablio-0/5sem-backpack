@@ -417,17 +417,10 @@ class BaseController extends GenericController
      * 
      * @return \Illuminate\View\View Retorna a view com a solução melhorada e sua avaliação.
      */
-    public function improve(Request $request, $initialSolution, $evaluation, $items)
+    public function improve(Request $request)
     {
-        // Primeiro, valida apenas o campo do método
-        $request->validate([
-            'metodo_melhoria' => 'required|in:1,2,3',
-        ]);
+        $method = $request->input('improvement_method');
 
-        $method = $request->input('metodo_melhoria');
-
-        // Regras condicionais por método
-        $rules = [];
 
         switch ($method) {
             case '1': // Subida de Encosta
@@ -449,14 +442,27 @@ class BaseController extends GenericController
                     'reducing_factor' => 'required|numeric|gt:0|lt:1',
                 ];
                 break;
+            case '4': // Todos os métodos
+                $rules = [
+                    'successors_num' => 'required|integer|min:1',
+                    'max_attemps' => 'required|integer|min:1',
+                    'initial_temp' => 'required|numeric|gt:0',
+                    'final_temp' => 'required|numeric|gt:0|lt:initial_temp',
+                    'reducing_factor' => 'required|numeric|gt:0|lt:1',
+                ];
+            default:
+                return back()->withErrors(['improvement_method' => 'Método inválido']);
         }
 
         // Valida os campos conforme o método
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
+            dd($request->all(), $method);
+            
             return redirect()->back()->withErrors($validator)->withInput();
         }
+
 
         $max_capacity = $request->input('max_capacity');
         $item_count = $request->input('item_count');
@@ -576,6 +582,8 @@ class BaseController extends GenericController
                 $results
             )
         ]);
+
+        dd($data);
 
         return view('base.results', compact('data'));
     }
