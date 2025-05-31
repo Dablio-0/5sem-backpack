@@ -26,6 +26,7 @@ class BaseController extends GenericController
             'max_capacity' => null,
             'item_count' => null,
             'generated_problem' => [],
+            'items' => [],
             'initial_solution' => [],
             'evaluation' => null,
         ]);
@@ -184,6 +185,7 @@ class BaseController extends GenericController
         $better = $initialSolution;
         $betterEvaluation = $evaluation;
         $numSuccessors = $successors_num;
+        $successors_generated = [];
 
         for ($i = 0; $i < $numSuccessors; $i++) {
 
@@ -216,6 +218,12 @@ class BaseController extends GenericController
 
             $evaluation = $this->evaluateSolution($aux, $items);
 
+            // Armazena o sucessor gerado
+            $successors_generated[] = [
+                'solution' => $aux,
+                'evaluation' => $evaluation,
+            ];
+
             if ($evaluation > $betterEvaluation) {
                 $better = $aux;
                 $betterEvaluation = $evaluation;
@@ -225,6 +233,7 @@ class BaseController extends GenericController
         return [
             'final_solution' => $better,
             'final_evaluation' => $betterEvaluation,
+            'successors_generated' => $successors_generated
         ];
     }
 
@@ -257,8 +266,12 @@ class BaseController extends GenericController
         $currentEvaluation = $evaluation;
         $successors_num = $successors_num ?? $item_count; // Se não for fornecido, usa o número total de itens
 
+        $successors_generated = [];
+
         while (true) {
             $successors = $this->successors($current, $currentEvaluation, $items, $max_capacity, $item_count, $successors_num);
+
+            $successors_generated = $successors['successors_generated'] ?? 0;
             $newSolution = $successors['final_solution'];
             $newEvaluation = $successors['final_evaluation'];
 
@@ -271,6 +284,7 @@ class BaseController extends GenericController
         }
 
         return [
+            'successors_generated' => $successors_generated,
             'final_solution' => $current,
             'final_evaluation' => $currentEvaluation,
         ];
@@ -309,8 +323,12 @@ class BaseController extends GenericController
         $max_attemps = $max_attemps;
         $successors_num = $successors_num ?? $item_count;
 
+        $successors_generated = [];
+
         while (true) {
             $successors = $this->successors($current, $currentEvaluation, $items, $max_capacity, $item_count, $successors_num);
+
+            $successors_generated = $successors['successors_generated'] ?? 0;
             $newSolution = $successors['final_solution'];
             $newEvaluation = $successors['final_evaluation'];
 
@@ -328,6 +346,7 @@ class BaseController extends GenericController
         }
 
         return [
+            'successors_generated' => $successors_generated,
             'final_solution' => $current,
             'final_evaluation' => $currentEvaluation,
         ];
@@ -371,9 +390,12 @@ class BaseController extends GenericController
         $min_temp = $final_temp;
         $ft_red = $reducing_factor;
 
-        while ($max_temp >= $min_temp) {
+        $successors_generated = [];
 
+        while ($max_temp >= $min_temp) {
             $successors = $this->successors($current, $currentEvaluation, $items, $max_capacity, $item_count, $successors_num);
+
+            $successors_generated = $successors['successors_generated'] ?? 0;
             $newSolution = $successors['final_solution'];
             $newEvaluation = $successors['final_evaluation'];
 
@@ -396,6 +418,7 @@ class BaseController extends GenericController
         }
 
         return [
+            'successors_generated' => $successors_generated,
             'final_solution' => $current,
             'final_evaluation' => $currentEvaluation,
         ];
@@ -419,59 +442,77 @@ class BaseController extends GenericController
      */
     public function improve(Request $request)
     {
-        $method = $request->input('improvement_method');
 
+        $request->validate([
+            'improvement_method' => 'required|integer|in:1,2,3,4',
+        ]);
+
+        $method = $request->input('improvement_method');
 
         switch ($method) {
             case '1': // Subida de Encosta
                 $rules = [
-                    'successors_num' => 'required|integer|min:1',
+                    'successors_num_se' => 'required|integer|min:1',
                 ];
                 break;
             case '2': // Subida de Encosta Alterada
                 $rules = [
-                    'successors_num' => 'required|integer|min:1',
+                    'successors_num_sea' => 'required|integer|min:1',
                     'max_attemps' => 'required|integer|min:1',
                 ];
                 break;
             case '3': // Têmpera Simulada
                 $rules = [
-                    'successors_num' => 'required|integer|min:1',
+                    'successors_num_ts' => 'required|integer|min:1',
                     'initial_temp' => 'required|numeric|gt:0',
                     'final_temp' => 'required|numeric|gt:0|lt:initial_temp',
                     'reducing_factor' => 'required|numeric|gt:0|lt:1',
                 ];
                 break;
             case '4': // Todos os métodos
+
                 $rules = [
-                    'successors_num' => 'required|integer|min:1',
+                    'successors_num_se' => 'required|integer|min:1',
+                    'successors_num_sea' => 'required|integer|min:1',
+                    'successors_num_ts' => 'required|integer|min:1',
                     'max_attemps' => 'required|integer|min:1',
                     'initial_temp' => 'required|numeric|gt:0',
                     'final_temp' => 'required|numeric|gt:0|lt:initial_temp',
                     'reducing_factor' => 'required|numeric|gt:0|lt:1',
                 ];
+
+                break;
             default:
                 return back()->withErrors(['improvement_method' => 'Método inválido']);
         }
-
         // Valida os campos conforme o método
         $validator = Validator::make($request->all(), $rules);
-
+        
         if ($validator->fails()) {
-            dd($request->all(), $method);
-            
             return redirect()->back()->withErrors($validator)->withInput();
         }
-
-
-        $max_capacity = $request->input('max_capacity');
-        $item_count = $request->input('item_count');
-
-        // Desserializar os arrays
+        
+        /* Desserializar os arrays e capturar valores iniciais */
+        $max_capacity = intval($request->input('max_capacity'));
+        $item_count = intval($request->input('item_count'));
         $generatedProblem = json_decode($request->input('generated_problem'), true);
         $initialSolution = json_decode($request->input('initial_solution'), true);
         $evaluation = floatval($request->input('evaluation'));
         $items = json_decode($request->input('items'), true);
+
+        /* Pegandos os demais valores da requisiçõo de acord com cada método */
+        // Subida de Encosta
+        $successors_num_se = $request->has('successors_num_se') ? intval($request->input('successors_num_se')) : null;
+
+        // Subida de Encosta Alterada
+        $successors_num_sea = $request->has('successors_num_sea') ? intval($request->input('successors_num_sea')) : null;
+        $max_attemps = intval($request->input('max_attemps', 0));
+
+        // Têmpera Simulada
+        $successors_num_ts = $request->has('successors_num_ts') ? intval($request->input('successors_num_ts')) : null;
+        $initial_temp = $request->has('initial_temp') ? intval($request->input('initial_temp')) : null;
+        $final_temp = $request->has('final_temp') ? intval($request->input('final_temp')) : null;
+        $reducing_factor = $request->has('reducing_factor') ? floatval($request->input('reducing_factor')) : null;
 
         $primarySolution = $initialSolution;
         $primaryEvaluation = $evaluation;
@@ -480,21 +521,24 @@ class BaseController extends GenericController
         switch ($method) {
             case 1:
 
+                $successors_num_se = intval($request->input('successors_num_se'));
                 // chama a funcao de subida de encosta
+
                 $results['hillClimbing_results'] = $this->hillClimbing(
                     $initialSolution,
                     $evaluation,
                     $items,
                     $max_capacity,
-                    $item_count
+                    $item_count,
+                    $successors_num_se
                 );
                 break;
 
             case 2:
 
                 // lógica para subida de encosta alterada
-                $successors_num = $request->input('successors_num');
-                $max_attemps = $request->input('max_attemps');
+                $successors_num_sea = intval($request->input('successors_num_sea'));
+                $max_attemps = intval($request->input('max_attemps'));
 
                 $results['changedHillClimbing_results'] = $this->changedHillClimbing(
                     $initialSolution,
@@ -502,7 +546,7 @@ class BaseController extends GenericController
                     $items,
                     $max_capacity,
                     $item_count,
-                    $successors_num,
+                    $successors_num_sea,
                     $max_attemps
                 );
                 break;
@@ -510,10 +554,10 @@ class BaseController extends GenericController
             case 3:
 
                 // lógica para têmpera simulada
-                $successors_num = $request->input('successors_num');
-                $initial_temp = $request->input('initial_temp');
-                $final_temp = $request->input('final_temp');
-                $reducing_factor = $request->input('reducing_factor');
+                $successors_num_ts = intval($request->input('successors_num_ts'));
+                $initial_temp = intval($request->input('initial_temp'));
+                $final_temp = intval($request->input('final_temp'));
+                $reducing_factor = floatval($request->input('reducing_factor'));
 
                 $results['simulatedAnnealing_results'] = $this->simulatedAnnealing(
                     $initialSolution,
@@ -521,7 +565,7 @@ class BaseController extends GenericController
                     $items,
                     $max_capacity,
                     $item_count,
-                    $successors_num,
+                    $successors_num_ts,
                     $initial_temp,
                     $final_temp,
                     $reducing_factor
@@ -536,7 +580,8 @@ class BaseController extends GenericController
                     $evaluation,
                     $items,
                     $max_capacity,
-                    $item_count
+                    $item_count,
+                    intval($request->input('successors_num_se'))
                 );
 
                 $results['changedHillClimbing_results'] = $this->changedHillClimbing(
@@ -545,8 +590,8 @@ class BaseController extends GenericController
                     $items,
                     $max_capacity,
                     $item_count,
-                    $request->input('successors_num'),
-                    $request->input('max_attemps')
+                    intval($request->input('successors_num_sea')),
+                    intval($request->input('max_attemps'))
                 );
 
                 $results['simulatedAnnealing_results'] = $this->simulatedAnnealing(
@@ -555,11 +600,13 @@ class BaseController extends GenericController
                     $items,
                     $max_capacity,
                     $item_count,
-                    $request->input('successors_num'),
-                    $request->input('initial_temp'),
-                    $request->input('final_temp'),
-                    $request->input('reducing_factor')
+                    intval($request->input('successors_num_ts')),
+                    intval($request->input('initial_temp')),
+                    intval($request->input('final_temp')),
+                    floatval($request->input('reducing_factor')),
                 );
+
+                break;
 
             default:
                 return back()->withErrors(['improvement_method' => 'Método inválido']);
@@ -574,7 +621,9 @@ class BaseController extends GenericController
                 $primaryEvaluation,
                 $items,
                 $method,
-                $successors_num,
+                $successors_num_se,
+                $successors_num_sea,
+                $successors_num_ts,
                 $max_attemps,
                 $initial_temp,
                 $final_temp,
@@ -596,14 +645,16 @@ class BaseController extends GenericController
         $primaryEvaluation,
         $items,
         $method,
-        $successors_num = null,
+        $successors_num_se = null,
+        $successors_num_sea = null,
+        $successors_num_ts = null,
         $max_attemps = null,
         $initial_temp = null,
         $final_temp = null,
         $reducing_factor = null,
         array $results = []
     ) {
-
+        // Valida os campos conforme o método
         $data = collect([
             $this->dataResults(
                 $max_capacity,
@@ -613,7 +664,9 @@ class BaseController extends GenericController
                 $primaryEvaluation,
                 $items,
                 $method,
-                $successors_num,
+                $successors_num_se,
+                $successors_num_sea,
+                $successors_num_ts,
                 $max_attemps,
                 $initial_temp,
                 $final_temp,
@@ -632,18 +685,20 @@ class BaseController extends GenericController
      * 
      * @method dataResults
      * 
-     * @param mixed $max_capacity
-     * @param mixed $item_count
-     * @param mixed $generatedProblem
-     * @param mixed $primarySolution
-     * @param mixed $primaryEvaluation
-     * @param mixed $items
-     * @param mixed $method
-     * @param mixed $successors_num
-     * @param mixed $max_attemps
-     * @param mixed $initial_temp
-     * @param mixed $final_temp
-     * @param mixed $reducing_factor
+     * @param int $max_capacity
+     * @param int $item_count
+     * @param array $generatedProblem
+     * @param array $primarySolution
+     * @param float $primaryEvaluation
+     * @param array $items
+     * @param int $method
+     * @param int $successors_num_se
+     * @param int $successors_num_sea
+     * @param int $successors_num_ts
+     * @param int $max_attemps
+     * @param int $initial_temp
+     * @param int $final_temp
+     * @param float $reducing_factor
      * @param array $results
      * 
      * @return \Illuminate\View\View|\Symfony\Component\HttpFoundation\Response
@@ -654,9 +709,11 @@ class BaseController extends GenericController
         $generatedProblem,
         $primarySolution,
         $primaryEvaluation,
-        $items,
+        $items, 
         $method,
-        $successors_num = null,
+        $successors_num_se = null,
+        $successors_num_sea = null,
+        $successors_num_ts = null,
         $max_attemps = null,
         $initial_temp = null,
         $final_temp = null,
@@ -675,11 +732,15 @@ class BaseController extends GenericController
             /* Dados do método de melhoria */
             'method' => $method,
 
-            /* Dados Subida de Encosta e Subida de Encosta Alterada */
-            'successors_num' => $successors_num ?? null, // presente em todos os métodos
+            /* Dados Subida de Encosta */
+            'successors_num_se' => $successors_num_se ?? null,
+
+            /* Dados Subida de Encosta Alterada */
+            'successors_num_sea' => $successors_num_sea ?? null,
             'max_attemps' => $max_attemps ?? null,
 
             /* Dados de Têmpera Simulada */
+            'successors_num_ts' => $successors_num_ts ?? null,
             'initial_temp' => $initial_temp ?? null,
             'final_temp' => $final_temp ?? null,
             'reducing_factor' => $reducing_factor ?? null,

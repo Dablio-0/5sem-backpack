@@ -43,14 +43,11 @@
                                 <p><strong>Quantidades de Valores:</strong> {{ count($generated_problem) }}</p>
                             </div>
 
-                            @if(isset($items) && !empty($items))
-                                <div style="flex: 1; min-width: 200px;">
-                                    <p><strong>Itens:</strong></p>
-                                    <textarea readonly style="width: 100%; height: 200px; resize: vertical; overflow: auto;">{{ json_encode($items, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</textarea>
-                                    <p><strong>Quantidade de Valores:</strong> {{ count($items) }}</p>
-                                </div>
-                            @endif
-
+                            <div style="flex: 1; min-width: 200px;">
+                                <p><strong>Itens:</strong></p>
+                                <textarea readonly style="width: 100%; height: 200px; resize: vertical; overflow: auto;">{{ json_encode($items, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</textarea>
+                                <p><strong>Quantidade de Valores:</strong> {{ count($items) }}</p>
+                            </div>
 
                             <div style="flex: 1; min-width: 200px;">
                                 <p><strong>Solução Inicial:</strong></p>
@@ -79,16 +76,19 @@
                     <input type="hidden" name="item_count" value="{{ $item_count ?? '' }}" />
                     <input type="hidden" name="max_capacity" value="{{ $max_capacity ?? '' }}" />
                     <div class="card-content center-align">
-                        <span class="card-title">Configuração do Problema</span>
+                        <span class="card-title">Algoritmos de Busca Local</span>
                         <div class="row">
                             <div class="input-field col s12 l4 offset-l4 offset-m3 center-align">
-                                <select name="improvement_method" id="improvement_method" class="browser-default" @error('improvement_method') style="border: 1px solid red;"> @enderror
-                                    <option value="" selected>Selecione uma opção</option>
-                                    <option value="1">Subida de Encosta</option>
-                                    <option value="2">Subida de Encosta Alterada</option>
-                                    <option value="3">Têmpera Simulada</option>
-                                    <option value="4">Todos</option>
+                                <select id="improvement_method" name="improvement_method" class="browser-default" @error('improvement_method') invalid @enderror">
+                                    <option value="" selected>Escolha um método</option>
+                                    <option value="1" {{ old('improvement_method') == 1 ? 'selected' : '' }}>Subida de Encosta</option>
+                                    <option value="2" {{ old('improvement_method') == 2 ? 'selected' : '' }}>Subida de Encosta Alterada</option>
+                                    <option value="3" {{ old('improvement_method') == 3 ? 'selected' : '' }}>Têmpera Simulada</option>
+                                    <option value="4" {{ old('improvement_method') == 4 ? 'selected' : '' }}>Todos</option>
                                 </select>
+                            @error('improvement_method')
+                                <span class="helper-text red-text">{{ $message }}</span>
+                            @enderror
                             </div>
                         </div>
                         <div id="dynamic-fields">
@@ -110,7 +110,6 @@
             <div class="card">
                 <div class="card-content">
                     <span class="card-title center-align">Visualização - Resultados Melhorados</span>
-                    @include('base.results')
                 </div>
             </div>
         </div>
@@ -126,10 +125,11 @@
                 configDiv.innerHTML = `
                     <br>
                     <div class="divider"></div>
+                    <br>
                     <div class="row">
                         <div class="input-field col s12 l4 offset-l4 offset-m3">
-                            <input type="text" name="successors_num" id="successors_num" value="{{ $successors_num ?? '' }}" @error('successors_num') is-invalid @enderror/>
-                            <label for="successors_num">Máximo de Iterações (Sucessores)</label>
+                            <input type="text" name="successors_num_se" id="successors_num_se" value="{{ $successors_num_se ?? '' }}" @error('successors_num_se') is-invalid @enderror/>
+                            <label for="successors_num_se">Máximo de Iterações (Sucessores)</label>
                         </div>
                     </div>
                 `;
@@ -140,8 +140,8 @@
                     <div class="divider"></div>
                     <div class="row">
                         <div class="input-field col s12 l6">
-                            <input type="text" name="successors_num" id="successors_num" value="{{ $successors_num ?? '' }}" @error('successors_num') is-invalid @enderror/>
-                            <label for="successors_num">Máximo de Iterações (Sucessores)</label>
+                            <input type="text" name="successors_num_sea" id="successors_num_sea" value="{{ $successors_num_sea ?? '' }}" @error('successors_num_sea') is-invalid @enderror/>
+                            <label for="successors_num_sea">Máximo de Iterações (Sucessores)</label>
                         </div>
                         <div class="input-field col s12 l6">
                             <input type="text" name="max_attemps" id="max_attemps" value="{{ $max_attemps ?? '' }}" @error('max_attemps') is-invalid @enderror />
@@ -156,8 +156,8 @@
                     <div class="divider"></div>
                     <div class="row">
                         <div class="input-field col s12 l6 offset-l3 offset-m4">
-                            <input type="text" name="successors_num" id="successors_num" value="{{ $successors_num ?? '' }}" @error('successors_num') is-invalid @enderror />
-                            <label for="successors_num">Número de Sucessores</label>
+                            <input type="text" name="successors_num_ts" id="successors_num_ts" value="{{ $successors_num_ts ?? '' }}" @error('successors_num_ts') is-invalid @enderror />
+                            <label for="successors_num_ts">Número de Sucessores</label>
                         </div>
                     </div>
                     <div class="row">
@@ -184,8 +184,8 @@
                         <br>
                         <center ><p><strong>Subida de Encosta</strong></p></center>
                         <div class="input-field col s12 l4 offset-l4 offset-m3">
-                            <input type="text" name="successors_num" id="successors_num" value="{{ $successors_num ?? '' }}" @error('successors_num') is-invalid @enderror/>
-                            <label for="successors_num">Máximo de Iterações (Sucessores)</label>
+                            <input type="text" name="successors_num_se" id="successors_num_se" value="{{ $successors_num_se ?? '' }}" @error('successors_num_se') is-invalid @enderror/>
+                            <label for="successors_num_se">Máximo de Iterações (Sucessores)</label>
                         </div>
                     </div>
                     <div class="divider"></div>
@@ -193,8 +193,8 @@
                         <br>
                         <center ><p><strong>Subida de Encosta Alterada</strong></p></center>
                         <div class="input-field col s12 l6">
-                            <input type="text" name="successors_num" id="successors_num" value="{{ $successors_num ?? '' }}" @error('successors_num') is-invalid @enderror/>
-                            <label for="successors_num">Máximo de Iterações (Sucessores)</label>
+                            <input type="text" name="successors_num_sea" id="successors_num_sea" value="{{ $successors_num_sea ?? '' }}" @error('successors_num_sea') is-invalid @enderror/>
+                            <label for="successors_num_sea">Máximo de Iterações (Sucessores)</label>
                         </div>
                         <div class="input-field col s12 l6">
                             <input type="text" name="max_attemps" id="max_attemps" value="{{ $max_attemps ?? '' }}" @error('max_attemps') is-invalid @enderror />
@@ -208,8 +208,8 @@
                     </div>
                     <div class="row">
                         <div class="input-field col s12 l6 offset-l3 offset-m4">
-                            <input type="text" name="successors_num" id="successors_num" value="{{ $successors_num ?? '' }}" @error('successors_num') is-invalid @enderror />
-                            <label for="successors_num">Número de Sucessores</label>
+                            <input type="text" name="successors_num_ts" id="successors_num_ts" value="{{ $successors_num_ts ?? '' }}" @error('successors_num_ts') is-invalid @enderror />
+                            <label for="successors_num_ts">Número de Sucessores</label>
                         </div>
                     </div>
                     <div class="row">
@@ -230,6 +230,14 @@
                 configDiv.style.display = 'block';
             }
         });
+        
+        const selectedMethod = '{{ old('improvement_method') }}';
+
+        if (selectedMethod) {
+            document.getElementById('improvement_method').value = selectedMethod;
+            document.getElementById('improvement_method').dispatchEvent(new Event('change'));
+        }
+
     });
 </script>
 @endsection
