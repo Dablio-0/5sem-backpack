@@ -1,0 +1,45 @@
+Insturções para executar aplicação Laravel de Problema da Mochila:
+
+Caso não tenha instalado PHP e Composer, obtenha as versões, sendo respectivamente:
+
+PHP 7.4.33 e Composer 2.8.1
+
+As apliacações Laravel necessitam do PHP, pois Laravel é um framework PHP e Composer é o gerenciador de pacotes do PHP 
+que auxilia nas dependências do Laravel.
+
+Certifique-se também de possuir o NPM, pois também é necessário (NPM 10.8.2)
+
+Após realizar os downloads, siga os passos abaixo:
+
+Baixe o repositório em alguma pasta local em sua máquina.
+
+Acesso o diretório ao qual foi realizado o download. Quando acessar a pasta do repositório, o caminho estará assim:
+seu_caminho/para/projeto/5sem-backpack
+
+Você deve entrar na pasta dentro de "5sem-backpack" chamada backpack-game. Ficará assim:
+seu_caminho/para/projeto/5sem-backpack/backpack-game
+
+Após acessar o caminho da pasta, execute os comandos abaixo nessa ordem:
+
+composer install
+
+npm install 
+
+php artisan key:generate
+
+php artisan serve 
+
+(Se precisar do arquivo .env novamente, ele foi encaminhado junto ao trabalho na entrega do MS Teams)
+
+Após o último comando, o sistema irá provisionar o ambiente localhost (normalmente na porta 8000), e então basta acessar em seu navegador web "localhost:8000".
+
+Assim o sistema estará pronto para ser usado.
+
+Posteriormente, acesse a rota /home do sistema. Nessa págia haverá a pagina inicial para utialização do sistema
+
+Ao clicar em métodos básicos, voce será redirecionado para a tela de métodos básicos, com geração do problema,
+e exportação de pdf.
+
+OBS: A ferature de exportação do pdf está funcionando e ativa, no entanto o design dos campos dentro do pdf encontra-se com problemas de visualização.
+A correção do design e visualização do métodos, será entregue no T3.
+
