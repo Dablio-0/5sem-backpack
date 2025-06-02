@@ -29,6 +29,17 @@ php artisan key:generate
 
 php artisan serve 
 
+(Se precisar do arquivo .env novamente, ele foi encaminhado junto ao trabalho na entrega do MS Teams)
+
 Após o último comando, o sistema irá provisionar o ambiente localhost (normalmente na porta 8000), e então basta acessar em seu navegador web "localhost:8000".
 
 Assim o sistema estará pronto para ser usado.
+
+Posteriormente, acesse a rota /home do sistema. Nessa págia haverá a pagina inicial para utialização do sistema
+
+Ao clicar em métodos básicos, voce será redirecionado para a tela de métodos básicos, com geração do problema,
+e exportação de pdf.
+
+OBS: A ferature de exportação do pdf está funcionando e ativa, no entanto o design dos campos dentro do pdf encontra-se com problemas de visualização.
+A correção do design e visualização do métodos, será entregue no T3.
+
