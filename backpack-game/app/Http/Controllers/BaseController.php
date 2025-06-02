@@ -440,9 +440,8 @@ class BaseController extends GenericController
      * 
      * @return \Illuminate\View\View Retorna a view com a solução melhorada e sua avaliação.
      */
-    public function improve(Request $request)
+    public function improve(Request $request, $initialSolution, $generatedProblem, $items, $itemCount, $maxCapacity, $evaluation)
     {
-
         $request->validate([
             'improvement_method' => 'required|integer|in:1,2,3,4',
         ]);
@@ -491,16 +490,17 @@ class BaseController extends GenericController
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
-        
+
         /* Desserializar os arrays e capturar valores iniciais */
-        $max_capacity = intval($request->input('max_capacity'));
-        $item_count = intval($request->input('item_count'));
-        $generatedProblem = json_decode($request->input('generated_problem'), true);
-        $initialSolution = json_decode($request->input('initial_solution'), true);
-        $evaluation = floatval($request->input('evaluation'));
-        $items = json_decode($request->input('items'), true);
+        $max_capacity = intval($maxCapacity);
+        $item_count = intval($itemCount);
+
+        $generatedProblem = is_string($generatedProblem) ? json_decode($generatedProblem, true) : ($generatedProblem ?? []);
+        $initialSolution = is_string($initialSolution) ? json_decode($initialSolution, true) : ($initialSolution ?? []);
+        $items = is_string($items) ? json_decode($items, true) : ($items ?? []);
 
         /* Pegandos os demais valores da requisiçõo de acord com cada método */
+
         // Subida de Encosta
         $successors_num_se = $request->has('successors_num_se') ? intval($request->input('successors_num_se')) : null;
 
@@ -630,11 +630,56 @@ class BaseController extends GenericController
                 $reducing_factor,
                 $results
             )
-        ]);
+        ]); 
 
-        dd($data);
+        $data = $data->first();
+        return view('base.index', compact('data'));
+    }
 
-        return view('base.results', compact('data'));
+    public function exportImprove(Request $request)
+    {
+        $jsonData = $request->query('data');
+
+        if (!$jsonData) {
+            return redirect()->back()->withErrors('Dados ausentes.');
+        }
+
+        $data = json_decode($jsonData, true);
+
+        // Valida os campos conforme o método
+        $rules = [
+            'successors_num_se' => 'required|integer|min:1',
+            'successors_num_sea' => 'required|integer|min:1',
+            'successors_num_ts' => 'required|integer|min:1',
+            'max_attemps' => 'required|integer|min:1',
+            'initial_temp' => 'required|numeric|gt:0',
+            'final_temp' => 'required|numeric|gt:0|lt:initial_temp',
+            'reducing_factor' => 'required|numeric|gt:0|lt:1',
+        ];
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        return $this->exportImprovementResults(
+            $data['max_capacity'],
+            $data['item_count'],
+            $data['generated_problem'],
+            $data['primary_solution'],
+            $data['primary_evaluation'],
+            $data['items'],
+            $data['method'],
+            $data['successors_num_se'] ?? null,
+            $data['successors_num_sea'] ?? null,
+            $data['successors_num_ts'] ?? null,
+            $data['max_attemps'] ?? null,
+            $data['initial_temp'] ?? null,
+            $data['final_temp'] ?? null,
+            $data['reducing_factor'] ?? null,
+            $data['results']
+        );
     }
 
     public function exportImprovementResults(
@@ -675,7 +720,9 @@ class BaseController extends GenericController
             )
         ]);
 
-        return Excel::download(new BackpackProblemReportExport($data), 'Relatório - Problema da Mochila - ' . date('Y-m-d_H-i-s') . '.pdf', \Maatwebsite\Excel\Excel::MPDF);
+        return Excel::download(new BackpackProblemReportExport($data), 'Relatório - Problema da Mochila - ' . date('Y-m-d_H-i-s') . '.pdf', \Maatwebsite\Excel\Excel::MPDF, [
+            'orientation' => 'landscape',
+        ]);
     }
 
     /**

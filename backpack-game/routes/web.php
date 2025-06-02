@@ -26,15 +26,15 @@ Route::prefix('home')->name('home.')->group(function(){
 
     Route::get('base', [BaseController::class, 'index'])->name('base.index');
     Route::post('base', [BaseController::class, 'solve'])->name('base.solve');
-
-    Route::get('results', [BaseController::class, 'results'])->name('base.results');
-    Route::post('improve', [BaseController::class, 'improve'])->name('base.improve');
-
+    Route::post('improve/{initialSolution?}/
+                        {generatedProblem?}/
+                        {items?}/
+                        {itemCount?}/
+                        {maxCapacity?}/
+                        {evaluation?}', [BaseController::class, 'improve'])->name('base.improve');
+    Route::get('exportImprove', [BaseController::class, 'exportImprove'])->name('base.exportImprove');
 
 
     Route::get('genetic', [GeneticController::class, 'index'])->name('genetic.index');
-    
-
-
 
 });
