@@ -36,5 +36,8 @@ Route::prefix('home')->name('home.')->group(function(){
 
 
     Route::get('genetic', [GeneticController::class, 'index'])->name('genetic.index');
+    Route::post('genetic', [GeneticController::class, 'solve'])->name('genetic.solve');
+    Route::post('improve/', [GeneticController::class, 'improve'])->name('genetic.improve');
+    Route::get('exportImprove', [GeneticController::class, 'exportImprove'])->name('genetic.exportImprove');
 
 });
