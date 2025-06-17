@@ -108,6 +108,7 @@ class BaseController extends GenericController
     private function evaluateSolution($solution, $items)
     {
         $totalValue = 0;
+
         foreach ($solution as $index => $included) {
             if ($included) {
                 $totalValue += $items[$index];
@@ -137,8 +138,14 @@ class BaseController extends GenericController
         $max_capacity = $request->input('max_capacity');
         $item_count = $request->input('item_count');
 
-        $items = array_map(fn() => mt_rand(1, 100) / 10, range(1, $item_count));
-
+        for ($i = 0; $i < $item_count; $i++) {
+            $aux1 = mt_rand(1, 100) / 33;
+            $aux2 = mt_rand(1, 100) / 33;
+            if($aux1>$aux2) $items[$i] = $aux1/$aux2;
+            else $items[$i] = $aux2/$aux1;
+        }
+        
+        
         $generatedProblem = $this->generateProblem($item_count);
         $initialSolution = $this->generateInitialSolution($max_capacity, $items);
         $evaluation = $this->evaluateSolution($initialSolution, $items);
@@ -491,23 +498,24 @@ class BaseController extends GenericController
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        
         /* Desserializar os arrays e capturar valores iniciais */
         $max_capacity = intval($maxCapacity);
         $item_count = intval($itemCount);
-
+        
         $generatedProblem = is_string($generatedProblem) ? json_decode($generatedProblem, true) : ($generatedProblem ?? []);
         $initialSolution = is_string($initialSolution) ? json_decode($initialSolution, true) : ($initialSolution ?? []);
         $items = is_string($items) ? json_decode($items, true) : ($items ?? []);
-
+        
         /* Pegandos os demais valores da requisiçõo de acord com cada método */
-
+        
         // Subida de Encosta
         $successors_num_se = $request->has('successors_num_se') ? intval($request->input('successors_num_se')) : null;
-
+        
         // Subida de Encosta Alterada
         $successors_num_sea = $request->has('successors_num_sea') ? intval($request->input('successors_num_sea')) : null;
         $max_attemps = intval($request->input('max_attemps', 0));
-
+        
         // Têmpera Simulada
         $successors_num_ts = $request->has('successors_num_ts') ? intval($request->input('successors_num_ts')) : null;
         $initial_temp = $request->has('initial_temp') ? intval($request->input('initial_temp')) : null;
@@ -516,14 +524,14 @@ class BaseController extends GenericController
 
         $primarySolution = $initialSolution;
         $primaryEvaluation = $evaluation;
-
+        
         $results = [];
         switch ($method) {
             case 1:
-
+                
                 $successors_num_se = intval($request->input('successors_num_se'));
                 // chama a funcao de subida de encosta
-
+                
                 $results['hillClimbing_results'] = $this->hillClimbing(
                     $initialSolution,
                     $evaluation,
@@ -555,10 +563,11 @@ class BaseController extends GenericController
 
                 // lógica para têmpera simulada
                 $successors_num_ts = intval($request->input('successors_num_ts'));
-                $initial_temp = intval($request->input('initial_temp'));
-                $final_temp = intval($request->input('final_temp'));
+                $initial_temp = floatval($request->input('initial_temp'));
+                $final_temp = floatval($request->input('final_temp'));
                 $reducing_factor = floatval($request->input('reducing_factor'));
-
+                
+                // dd($initialSolution, $evaluation, $items, $max_capacity, $item_count, $successors_num_ts, $initial_temp, $final_temp, $reducing_factor);
                 $results['simulatedAnnealing_results'] = $this->simulatedAnnealing(
                     $initialSolution,
                     $evaluation,
@@ -601,8 +610,8 @@ class BaseController extends GenericController
                     $max_capacity,
                     $item_count,
                     intval($request->input('successors_num_ts')),
-                    intval($request->input('initial_temp')),
-                    intval($request->input('final_temp')),
+                    floatval($request->input('initial_temp')),
+                    floatval($request->input('final_temp')),
                     floatval($request->input('reducing_factor')),
                 );
 

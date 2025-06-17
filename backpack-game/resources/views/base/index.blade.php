@@ -169,14 +169,14 @@
                                 <center><p><strong>Método Utilizado:</strong> Subida de Encosta Alterada</p></center>
                                 <div class="divider"></div>
                                 @php
-                                    $hillClimbing = $data['results']['changedHillClimbing'] ?? null;
+                                    $changedHillClimbing = $data['results']['changedHillClimbing'] ?? null;
                                     $output = '';
 
-                                    if ($hillClimbing && isset($hillClimbing['successors_generated'])) {
-                                        $output .= "Número de sucessores gerados: " . count($hillClimbing['successors_generated']) . "\n";
+                                    if ($changedHillClimbing && isset($changedHillClimbing['successors_generated'])) {
+                                        $output .= "Número de sucessores gerados: " . count($changedHillClimbing['successors_generated']) . "\n";
                                         $output .= "Número de Tentativas: " . $data['max_attemps'] ?? 0 . "\n\n";
 
-                                        foreach ($hillClimbing['successors_generated'] as $index => $succ) {
+                                        foreach ($changedHillClimbing['successors_generated'] as $index => $succ) {
                                             $solution = implode(', ', $succ['solution']);
                                             $evaluation = $succ['evaluation'];
                                             $output .= "Sucessor #" . ($index + 1) . ":\n";
@@ -184,9 +184,9 @@
                                             $output .= "  Avaliação: {$evaluation}\n\n";
                                         }
 
-                                        if (isset($hillClimbing['final_solution'], $hillClimbing['final_evaluation'])) {
-                                            $finalSolution = implode(', ', $hillClimbing['final_solution']);
-                                            $finalEvaluation = $hillClimbing['final_evaluation'];
+                                        if (isset($changedHillClimbing['final_solution'], $changedHillClimbing['final_evaluation'])) {
+                                            $finalSolution = implode(', ', $changedHillClimbing['final_solution']);
+                                            $finalEvaluation = $changedHillClimbing['final_evaluation'];
                                             $output .= "Solução Final:\n";
                                             $output .= "  Solução: [{$finalSolution}]\n";
                                             $output .= "  Avaliação: {$finalEvaluation}\n";
@@ -195,22 +195,25 @@
                                         $output .= "Nenhum dado disponível para Subida de Encosta Alterada.";
                                     }
                                 @endphp
-                                <p><strong>Resultados da Subida de Encosta:</strong></p>
+                                <p><strong>Resultados da Subida de Encosta Alterada:</strong></p>
                                 <textarea readonly style="width: 100%; height: 300px; resize: vertical; overflow: auto;">{{ $output }}</textarea>
                             @elseif($data['method'] == 3)
                                 <center><p><strong>Método Utilizado:</strong> Têmpera Simulada</p></center>
                                 <div class="divider"></div>
                                 @php
-                                    $hillClimbing = $data['results']['changedHillClimbing'] ?? null;
+                                    $simulatedAnnealing = $data['results']['simulatedAnnealing'] ?? null;
                                     $output = '';
 
-                                    if ($hillClimbing && isset($hillClimbing['successors_generated'])) {
-                                        $output .= "Número de sucessores gerados: " . count($hillClimbing['successors_generated']) . "\n";
-                                        $output .= "Temperatura Inicial: " . $data['initial_temp'] ?? 0 . "\n";
+                                    if ($simulatedAnnealing && isset($simulatedAnnealing['successors_generated'])) {
+                                        $output .= "Número de sucessores gerados: " . count($simulatedAnnealing['successors_generated']) . "\n";
+                                        $output .= "Temperatura Inicial: " . $data['initial_temp'] ?? 0;
+                                        $output .= "\n";
                                         $output .= "Temperatura Final: " . $data['final_temp'] ?? 0 . "\n";
-                                        $output .= "Fator Redutor: " . $data['reducing_factor'] ?? 0 . "\n\n";
+                                        $output .= "\n";
+                                        $output .= "Fator Redutor: " . $data['reducing_factor'] ?? 0 . "\n\n\n";
+                                        $output .= "\n\n";
 
-                                        foreach ($hillClimbing['successors_generated'] as $index => $succ) {
+                                        foreach ($simulatedAnnealing['successors_generated'] as $index => $succ) {
                                             $solution = implode(', ', $succ['solution']);
                                             $evaluation = $succ['evaluation'];
                                             $output .= "Sucessor #" . ($index + 1) . ":\n";
@@ -218,9 +221,9 @@
                                             $output .= "  Avaliação: {$evaluation}\n\n";
                                         }
 
-                                        if (isset($hillClimbing['final_solution'], $hillClimbing['final_evaluation'])) {
-                                            $finalSolution = implode(', ', $hillClimbing['final_solution']);
-                                            $finalEvaluation = $hillClimbing['final_evaluation'];
+                                        if (isset($simulatedAnnealing['final_solution'], $simulatedAnnealing['final_evaluation'])) {
+                                            $finalSolution = implode(', ', $simulatedAnnealing['final_solution']);
+                                            $finalEvaluation = $simulatedAnnealing['final_evaluation'];
                                             $output .= "Solução Final:\n";
                                             $output .= "  Solução: [{$finalSolution}]\n";
                                             $output .= "  Avaliação: {$finalEvaluation}\n";
@@ -229,7 +232,7 @@
                                         $output .= "Nenhum dado disponível para Têmpera Simulada.";
                                     }
                                 @endphp
-                                <p><strong>Resultados da Subida de Encosta:</strong></p>
+                                <p><strong>Resultados da Têmpera Simulada:</strong></p>
                                 <textarea readonly style="width: 100%; height: 300px; resize: vertical; overflow: auto;">{{ $output }}</textarea>
                             @elseif($data['method'] == 4)
                                 <center><p><strong>Método Utilizado:</strong>Todos</p></center>
@@ -242,13 +245,17 @@
                                         if ($hillClimbing && isset($hillClimbing['successors_generated'])) {
                                             $outputHill .= "Subida de Encosta:\n";
                                             $outputHill .= "Número de sucessores gerados: " . count($hillClimbing['successors_generated']) . "\n\n";
+                                            $outputHill .= "\n\n";
+
                                             foreach ($hillClimbing['successors_generated'] as $index => $succ) {
                                                 $solution = implode(', ', $succ['solution']);
                                                 $evaluation = $succ['evaluation'];
                                                 $outputHill .= "Sucessor #" . ($index + 1) . ":\n";
                                                 $outputHill .= "  Solução: [{$solution}]\n";
                                                 $outputHill .= "  Avaliação: {$evaluation}\n\n";
+                                                $outputHill .= "\n\n";
                                             }
+                                            
                                             if (isset($hillClimbing['final_solution'], $hillClimbing['final_evaluation'])) {
                                                 $finalSolution = implode(', ', $hillClimbing['final_solution']);
                                                 $finalEvaluation = $hillClimbing['final_evaluation'];
@@ -267,12 +274,14 @@
                                             $outputChanged .= "Subida de Encosta Alterada:\n";
                                             $outputChanged .= "Número de sucessores gerados: " . count($changedHillClimbing['successors_generated']) . "\n";
                                             $outputChanged .= "Número de Tentativas: " . ($data['max_attemps'] ?? 0) . "\n\n";
+                                            $outputChanged .= "\n\n";
                                             foreach ($changedHillClimbing['successors_generated'] as $index => $succ) {
                                                 $solution = implode(', ', $succ['solution']);
                                                 $evaluation = $succ['evaluation'];
                                                 $outputChanged .= "Sucessor #" . ($index + 1) . ":\n";
                                                 $outputChanged .= "  Solução: [{$solution}]\n";
                                                 $outputChanged .= "  Avaliação: {$evaluation}\n\n";
+                                                $outputChanged .= "\n\n";
                                             }
                                             if (isset($changedHillClimbing['final_solution'], $changedHillClimbing['final_evaluation'])) {
                                                 $finalSolution = implode(', ', $changedHillClimbing['final_solution']);
@@ -294,12 +303,15 @@
                                             $outputAnnealing .= "Temperatura Inicial: " . ($data['initial_temp'] ?? 0) . "\n";
                                             $outputAnnealing .= "Temperatura Final: " . ($data['final_temp'] ?? 0) . "\n";
                                             $outputAnnealing .= "Fator Redutor: " . ($data['reducing_factor'] ?? 0) . "\n\n";
+                                            $outputAnnealing .= "\n\n";
+
                                             foreach ($simulatedAnnealing['successors_generated'] as $index => $succ) {
                                                 $solution = implode(', ', $succ['solution']);
                                                 $evaluation = $succ['evaluation'];
                                                 $outputAnnealing .= "Sucessor #" . ($index + 1) . ":\n";
                                                 $outputAnnealing .= "  Solução: [{$solution}]\n";
                                                 $outputAnnealing .= "  Avaliação: {$evaluation}\n\n";
+                                                $outputAnnealing .= "\n\n";
                                             }
                                             if (isset($simulatedAnnealing['final_solution'], $simulatedAnnealing['final_evaluation'])) {
                                                 $finalSolution = implode(', ', $simulatedAnnealing['final_solution']);
