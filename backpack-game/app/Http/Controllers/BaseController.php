@@ -189,7 +189,7 @@ class BaseController extends GenericController
         int $successors_num
     ) {
         // Inicializando valores
-        $better = $initialSolution;
+        $better = array_values($initialSolution);
         $betterEvaluation = $evaluation;
         $numSuccessors = $successors_num;
         $successors_generated = [];
@@ -232,7 +232,7 @@ class BaseController extends GenericController
             ];
 
             if ($evaluation > $betterEvaluation) {
-                $better = $aux;
+                $better = array_values($aux);
                 $betterEvaluation = $evaluation;
             }
         }
@@ -269,7 +269,7 @@ class BaseController extends GenericController
         ?int $successors_num = null
     ) {
         // Inicializando valores
-        $current = $initialSolution;
+        $current = array_values($initialSolution);
         $currentEvaluation = $evaluation;
         $successors_num = $successors_num ?? $item_count; // Se não for fornecido, usa o número total de itens
 
@@ -283,7 +283,7 @@ class BaseController extends GenericController
             $newEvaluation = $successors['final_evaluation'];
 
             if ($newEvaluation > $currentEvaluation) {
-                $current = $newSolution;
+                $current = array_values($newSolution);
                 $currentEvaluation = $newEvaluation;
             } else {
                 break; // Se não houver melhoria, sai do loop
@@ -324,7 +324,7 @@ class BaseController extends GenericController
         ?int $successors_num = null
     ) {
         // Inicializando valores
-        $current = $initialSolution;
+        $current = array_values($initialSolution);
         $currentEvaluation = $evaluation;
         $attemps = 0;
         $max_attemps = $max_attemps;
@@ -340,15 +340,15 @@ class BaseController extends GenericController
             $newEvaluation = $successors['final_evaluation'];
 
             if ($newEvaluation > $currentEvaluation) {
+                $current = array_values($newSolution);
+                $currentEvaluation = $newEvaluation;
+                $attemps = 0;
+            } else {
                 if ($attemps > $max_attemps) {
                     break; // Se o número de tentativas exceder o máximo, sai do loop
                 } else {
                     $attemps++;
                 }
-            } else {
-                $current = $newSolution;
-                $currentEvaluation = $newEvaluation;
-                $attemps = 0;
             }
         }
 
@@ -390,7 +390,7 @@ class BaseController extends GenericController
         float $reducing_factor
     ) {
         // Inicializando valores
-        $current = $initialSolution;
+        $current = array_values($initialSolution);
         $currentEvaluation = $evaluation;
         $successors_num = $successors_num ?? $item_count;
         $max_temp = $initial_temp;
@@ -406,17 +406,17 @@ class BaseController extends GenericController
             $newSolution = $successors['final_solution'];
             $newEvaluation = $successors['final_evaluation'];
 
-            $deltaE = $newEvaluation - $currentEvaluation;
+            $deltaE = $currentEvaluation - $newEvaluation;
 
             if ($deltaE < 0) {
-                $current = $newSolution;
+                $current = array_values($newSolution);
                 $currentEvaluation = $newEvaluation;
             } else {
                 $numRandom = mt_rand(0, $item_count - 1);
                 $aux = exp(-$deltaE / $max_temp);
 
                 if ($numRandom <= $aux) {
-                    $current = $newSolution;
+                    $current = array_values($newSolution);
                     $currentEvaluation = $newEvaluation;
                 }
             }
@@ -424,6 +424,7 @@ class BaseController extends GenericController
             $max_temp = $max_temp * $ft_red;
         }
 
+         
         return [
             'successors_generated' => $successors_generated,
             'final_solution' => $current,
@@ -522,7 +523,7 @@ class BaseController extends GenericController
         $final_temp = $request->has('final_temp') ? intval($request->input('final_temp')) : null;
         $reducing_factor = $request->has('reducing_factor') ? floatval($request->input('reducing_factor')) : null;
 
-        $primarySolution = $initialSolution;
+        $primarySolution = array_values($initialSolution);
         $primaryEvaluation = $evaluation;
         
         $results = [];
@@ -641,7 +642,10 @@ class BaseController extends GenericController
             )
         ]); 
 
+        
         $data = $data->first();
+
+        // Retorna a view com os dados necessários para exibir os resultados
         return view('base.index', compact('data'));
     }
 

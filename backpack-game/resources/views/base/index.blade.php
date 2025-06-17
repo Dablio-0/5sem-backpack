@@ -132,6 +132,9 @@
                                     <p><strong>Quantidade de Valores:</strong> {{ count($data['primary_solution']) }}</p>
                                 </div>
                             </div>
+                            <div style="margin-top: 20px;">
+                                <p><strong>Avaliação Inicial:</strong> {{ $data['primary_evaluation'] }}</p>
+                            </div>
                         </div>
                         <div class="row">
                             @if($data['method'] == 1)   
@@ -156,8 +159,8 @@
                                             $finalSolution = implode(', ', $hillClimbing['final_solution']);
                                             $finalEvaluation = $hillClimbing['final_evaluation'];
                                             $output .= "Solução Final:\n";
-                                            $output .= "  Solução: [{$finalSolution}]\n";
-                                            $output .= "  Avaliação: {$finalEvaluation}\n";
+                                            $output .= "  Solução: [{$hillClimbing['final_solution']}]\n";
+                                            $output .= "  Avaliação: {$hillClimbing['final_solution']}\n";
                                         }
                                     } else {
                                         $output .= "Nenhum dado disponível para Subida de Encosta.";
