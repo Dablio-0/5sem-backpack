@@ -157,9 +157,146 @@ class GeneticController extends GenericController
     /************************************** Aplicação de Melhoria - Algoritmos Genéticos (Busca Local) ************************************/
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public function initial_population(
+    public function sortItems(array $population, array $fitness){
+
         
-    )
+    }
+
+    public function initialPopulation(
+        int $item_count,
+        int $populationSize,
+        array $items,
+        int $max_capacity
+    ){
+        $population = [];
+        for ($i = 0; $i < $populationSize; $i++) {
+           $v = 0;
+           $c = 0;
+            while($v <= $max_capacity && $c != $item_count) {
+                $j = mt_rand(0, $item_count - 1);
+                if (!isset($population[$i][$j]) || $population[$i][$j] == 0) {
+                    $population[$i][$j] = 1;
+                    $v += $items[$j];
+                    $c++;
+                }
+            }
+            if($c != $item_count) {
+                $population[$i][$j] = 0;
+            }
+        }
+        return $population;
+    }
+
+    public function fitness(
+        int $item_count,
+        array $items,
+        int $populationSize,
+        int $max_capacity,
+        array $population
+    ){
+        // fit = np.zeros(tp,float)
+        $fitness = array_fill(0, $populationSize, 0.0);
+        for ($i = 0; $i < $populationSize; $i++) {
+            if($fitness[$i] == $max_capacity)
+                $fitness[$i] = $max_capacity * 1000;
+            else 
+                $fitness[$i] = $this->evaluateSolution($population[$i], $items);
+        }
+
+        $sum = array_sum($fitness);
+
+        if ($sum != 0) {
+            // Normaliza os valores (equivalente ao fit = fit/soma)
+            foreach ($fitness as $i => $value) {
+                $fitness[$i] = $value / $sum;
+            }
+        }
+
+        return $fitness;
+    }
+
+    public function roulette(array $fitness, int $populationSize)
+    {
+        $random = mt_rand() / mt_getrandmax(); // Gera um número aleatório entre 0 e 1
+        $index = 0;
+        $sum = $fitness[$index];
+        while ($sum < $random && $index < $populationSize - 1) {
+            $index += 1;
+            $sum += $fitness[$index];
+        }
+        return $index;
+    }
+
+    public function tournament(array $fitness, int $populationSize){
+        $p1 = mt_rand($populationSize);
+        $p2 = mt_rand($populationSize);
+        if ($fitness[$p1] > $fitness[$p2]) {
+            return $p1;
+        } else {
+            return $p2;
+        }
+    }
+
+    public function crossover(
+        array $parent1,
+        array $parent2,
+        int $item_count,
+        float $crossoverTax
+    ){
+        $child1 = [];
+        $child2 = [];
+        for ($i = 0; $i < $item_count; $i++) {
+            if (mt_rand() / mt_getrandmax() < $crossoverTax) {
+                $child1[$i] = $parent1[$i];
+                $child2[$i] = $parent2[$i];
+            } else {
+                $child1[$i] = $parent2[$i];
+                $child2[$i] = $parent1[$i];
+            }
+        }
+        return [$child1, $child2];
+    }
+
+    public function mutation(
+        array $individual,
+        int $item_count,
+        float $mutationTax
+    ){
+        for ($i = 0; $i < $item_count; $i++) {
+            if (mt_rand() / mt_getrandmax() < $mutationTax) {
+                $individual[$i] = !$individual[$i]; // Inverte o valor do gene
+            }
+        }
+        return $individual;
+    }
+
+    public function descendants(
+       
+    ){
+        
+    }
+
+    public function newPopulation(){
+
+    }
+
+    public function restrictionFix(){
+
+    }
+
+    public function geneticAlgorithm(
+        int $item_count,
+        int $populationSize,
+        array $items,
+        int $max_capacity,
+        float $crossoverTax,
+        float $mutationTax,
+        int $generationInterval,
+        int $generationNum
+    ){
+    
+    }
+
     /**
      * Método geral para aplicar as melhorias possíveis na solução inicial do problema da mochila.
      * 
