@@ -67,7 +67,14 @@
     <div class="row">
         <div class="col s12">
             <div class="card">
-                <form method="POST" action="{{ route('home.genetic.improve') }}">
+                <form method="POST" action="{{ route('home.genetic.improve', [
+                                                        'initialSolution' => json_encode($initial_solution ?? ''), 
+                                                        'generatedProblem' => json_encode($generated_problem ?? ''), 
+                                                        'items' => json_encode($items ?? ''), 
+                                                        'evaluation' => $evaluation ?? '',
+                                                        'itemCount' => $item_count ?? '', 
+                                                        'maxCapacity' => $max_capacity ?? ''
+                                                    ]) }}">
                     @csrf
                     <div class="card-content center-align">
                         <span class="card-title">Parâmetros Genéticos</span>
@@ -77,7 +84,7 @@
                                 <label for="populationSize">Tamanho da População</label>
                             </div>
                             <div class="input-field col s12 l6 center-align">
-                                <input type="text" name="cruzeTax" id="cruzeTax" value="{{ $cruzeTax ?? '' }}" @error('cruzeTax') is-invalid @enderror/>
+                                <input type="text" name="crossoverTax" id="cruzeTax" value="{{ $cruzeTax ?? '' }}" @error('cruzeTax') is-invalid @enderror/>
                                 <label for="cruzeTax">Taxa de Cruzamento</label>
                             </div>
                             <div class="input-field col s12 l6 center-align">
@@ -88,7 +95,7 @@
                                 <input type="text" name="generationInterval" id="generationInterval" value="{{ $generationInterval ?? '' }}" @error('generationInterval') is-invalid @enderror/>
                                 <label for="generationInterval">Intervalo de Geração</label>
                             </div>
-                            <div class="input-field col s12 l6 center-align">
+                            <div class="input-field col s12 l4 center-align offset-l4 offset-m3">
                                 <input type="text" name="generationNum" id="generationNum" value="{{ $generationNum ?? '' }}" @error('generationNum') is-invalid @enderror/>
                                 <label for="generationNum">Número de Gerações</label>
                             </div>
