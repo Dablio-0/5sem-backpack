@@ -44,11 +44,11 @@ class BaseController extends GenericController
      * 
      * @return array Retorna um array contendo os valores dos itens gerados aleatoriamente.
      */
-    private function generateProblem($itemCount)
+    private function generateProblem($itemCount, $max_capacity)
     {
         $problem = [];
         for ($i = 0; $i < $itemCount; $i++) {
-            $problem[] = mt_rand(1, 100) / 100; // Gera valores aleatórios entre 0 e 1
+            $problem[] = mt_rand(1, intval($max_capacity/2)-1) + floatval(mt_rand(1, intval($max_capacity/2)-1)/$max_capacity); // Gera valores aleatórios entre 0 e 1
         }
         return $problem;
     }
@@ -139,14 +139,12 @@ class BaseController extends GenericController
         $item_count = $request->input('item_count');
 
         for ($i = 0; $i < $item_count; $i++) {
-            $aux1 = mt_rand(1, 100) / 33;
-            $aux2 = mt_rand(1, 100) / 33;
-            if($aux1>$aux2) $items[$i] = $aux1/$aux2;
-            else $items[$i] = $aux2/$aux1;
+            $items[$i] = mt_rand(1, intval($max_capacity/2)-1) + 
+            floatval(mt_rand(1, intval($max_capacity/2)-1)/$max_capacity); // Gera valores aleatórios entre 0 e 1
         }
         
         
-        $generatedProblem = $this->generateProblem($item_count);
+        $generatedProblem = $this->generateProblem($item_count, $max_capacity);
         $initialSolution = $this->generateInitialSolution($max_capacity, $items);
         $evaluation = $this->evaluateSolution($initialSolution, $items);
 
@@ -193,6 +191,7 @@ class BaseController extends GenericController
         $betterEvaluation = $evaluation;
         $numSuccessors = $successors_num;
         $successors_generated = [];
+        $p = 0;
 
         for ($i = 0; $i < $numSuccessors; $i++) {
 
@@ -200,8 +199,8 @@ class BaseController extends GenericController
 
             while (true) {
                 $p = mt_rand(0, $item_count - 1);
-                if ($aux[$p] == 0) {
-                    $aux[$p] = 1;
+                if ($aux[$p] == 1) {
+                    $aux[$p] = 0;
                     $$evaluation = $this->evaluateSolution($aux, $items);
                     break;
                 }
