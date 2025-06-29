@@ -43,3 +43,20 @@ e exportação de pdf.
 OBS: A ferature de exportação do pdf está funcionando e ativa, no entanto o design dos campos dentro do pdf encontra-se com problemas de visualização.
 A correção do design e visualização do métodos, será entregue no T3.
 
+#######################################################################################################################################################
+
+Comentários T3 e P3
+
+-> Implementei os códigos de algoritmos genéticos mas eles apresentaram erros aos quais não foram possível solucionar em tempo hábil.
+-> Busquei seguir exatamente a abordagem usada no algoritmo python, mas de forma equivalente ao PHP.
+-> Alterações foram necessárias pelo fato da linguagem ser diferente, também funções inexistentes em relação ao PHP.
+-> As execuções normalmente dão erro em relação ao tamanho de arrays (offset).
+-> QUando selecionado os parametros pré-definidios, o erro acontece em sortItems.
+-> Na configuração em que coloquei quando não usei os parametros pré-definidios o erro se deu na função mutação. 
+-> Configuraão que deu erro em mutação:
+10 tam pop
+0.8 cruamento
+0.2 mutação
+0.1 intervalo de geração
+
+
